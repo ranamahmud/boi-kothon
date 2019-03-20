@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "153420581228",
+    "firebase_url": "https://boi-kothon.firebaseio.com",
+    "project_id": "boi-kothon",
+    "storage_bucket": "boi-kothon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:153420581228:android:755d16d86413a5a9",
+        "android_client_info": {
+          "package_name": "com.ranamahmud.boikothon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "153420581228-1lpt6nue4ir6tkf98u79pr52e3dgtfqv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ranamahmud.boikothon",
+            "certificate_hash": "afc10142ba1c5e6101e9d9592e38a7e970859112"
+          }
+        },
+        {
+          "client_id": "153420581228-hdbn018m6s4qghe1g3vk1k82oloifdes.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDI7BaDSH6c17a_JOTIrc_bWyRYkZhZI8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "153420581228-hdbn018m6s4qghe1g3vk1k82oloifdes.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">Boi Kothon</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="fiction">
+
+        <item>Action and adventure</item>
+        <item>Alternate history</item>
+        <item>Anthology</item>
+        <item>Chick lit</item>
+        <item>Children\'s literature	</item>
+        <item>Comic book</item>
+        <item>Coming-of-age</item>
+        <item>Crime</item>
+        <item>Drama</item>
+        <item>Fairstyle</item>
+        <item>Fantacy</item>
+        <item>Graphic novel</item>
+        <item>Historical fiction</item>
+        <item>Horror</item>
+        <item>Mystery</item>
+        <item>Paranormal romance</item>
+        <item>Picture book</item>
+        <item>Poetry</item>
+        <item>Political thriller</item>
+        <item>Romance</item>
+        <item>Satire</item>
+        <item>Science fiction</item>
+        <item>Short story</item>
+        <item>Suspense</item>
+        <item>Thriller</item>
+        <item>Young adult</item>
+    </string-array>
+    <string-array name="non_fiction">
+        <item>Art</item>
+        <item>Autobiography</item>
+        <item>Biography</item>
+        <item>Cookbook</item>
+        <item>Dictionary</item>
+        <item>Encyclopedia</item>
+        <item>Guide</item>
+        <item>Health</item>
+        <item>Journal</item>
+        <item>Math</item>
+        <item>Memoir</item>
+        <item>Prayer</item>
+        <item>Religion, spirituality, and new age</item>
+        <item>Textbook</item>
+        <item>Review</item>
+        <item>Science</item>
+        <item>Self help</item>
+        <item>Travel</item>
+        <item>True crime</item>
+    </string-array>
+    <string name="toolbar_title">Contacts</string>
+    <string name="action_search">Search</string>
+    <string name="search_hint">Type name…</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
