@@ -2,20 +2,20 @@ package com.ranamahmud.boikothon.model;
 
 public class Book {
     private String bookImageUrl;
+    private String bookWriter;
     private String bookTitle;
     private String bookOwner;
     private String bookGenre;
-    private String bookUid;
     private String bookOwnerUid;
     private boolean bookAvailable;
     private int bookRating;
 
-    public Book(String bookImageUrl, String bookTitle, String bookOwner, String bookGenre, String bookUid,String bookOwnerUid, boolean bookAvailable, int bookRating) {
+    public Book(String bookImageUrl, String bookTitle,String bookWriter, String bookGenre,  boolean bookAvailable, int bookRating,  String bookOwner,String bookOwnerUid) {
         this.bookImageUrl = bookImageUrl;
+        this.bookWriter = bookWriter;
         this.bookTitle = bookTitle;
         this.bookOwner = bookOwner;
         this.bookGenre = bookGenre;
-        this.bookUid = bookUid;
         this.bookOwnerUid = bookOwnerUid;
         this.bookAvailable = bookAvailable;
         this.bookRating = bookRating;
@@ -27,6 +27,14 @@ public class Book {
 
     public void setBookImageUrl(String bookImageUrl) {
         this.bookImageUrl = bookImageUrl;
+    }
+
+    public String getBookWriter() {
+        return bookWriter;
+    }
+
+    public void setBookWriter(String bookWriter) {
+        this.bookWriter = bookWriter;
     }
 
     public String getBookTitle() {
@@ -51,14 +59,6 @@ public class Book {
 
     public void setBookGenre(String bookGenre) {
         this.bookGenre = bookGenre;
-    }
-
-    public String getBookUid() {
-        return bookUid;
-    }
-
-    public void setBookUid(String bookUid) {
-        this.bookUid = bookUid;
     }
 
     public String getBookOwnerUid() {

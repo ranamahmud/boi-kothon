@@ -1,6 +1,7 @@
 package com.ranamahmud.boikothon;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,13 +13,13 @@ import android.os.Bundle;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,12 @@ import android.view.View;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -41,6 +46,7 @@ import com.ranamahmud.boikothon.drawer.fragments.SearchBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.TakenBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.WishBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
+import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
@@ -56,7 +62,6 @@ import id.zelory.compressor.Compressor;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.PermissionRequest;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,18 +70,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,GivenBookFragment.OnListFragmentInteractionListener,
@@ -87,6 +91,7 @@ WishBookFragment.OnListFragmentInteractionListener,
 Profile.OnFragmentInteractionListener{
 
     private static final int RC_SIGN_IN = 123;
+    private static final String TAG = "MainActivity";
     private Class fragmentClass;
     private Fragment fragment;
     private FloatingActionButton fab;
@@ -116,6 +121,11 @@ Profile.OnFragmentInteractionListener{
     private MenuItem menuSignIn;
     private MenuItem menuSignOut;
     private StorageReference mStorageRef;
+    private String bookTitle;
+    private String bookGenre;
+    private FirebaseFirestore firebaseFirestore;
+    private String bookWriter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -589,6 +599,7 @@ Profile.OnFragmentInteractionListener{
         final View dialogView = inflater.inflate(R.layout.add_book_dialog_layout, null);
         dialogBuilder.setView(dialogView);
         final EditText editTextName = dialogView.findViewById(R.id.editTextName);
+        final EditText editTextWriter = dialogView.findViewById(R.id.editTextWriter);
         final Spinner spinnerGenre =  dialogView.findViewById(R.id.spinnerGenres);
         final Button buttonUpdate = dialogView.findViewById(R.id.buttonUpdateArtist);
         final ImageView bookImage = dialogView.findViewById(R.id.imageViewBook);
@@ -596,14 +607,15 @@ Profile.OnFragmentInteractionListener{
         //    final Button buttonChoosePicture = dialogView.findViewById(R.id.choose_picture_button);
         dialogCreate = dialogBuilder.create();
 
+        final File finalCompressedImageFile = compressedImageFile;
         buttonUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String bookTitle = editTextName.getText().toString().trim();
-                String bookGenre = spinnerGenre.getSelectedItem().toString();
-
+                bookTitle = editTextName.getText().toString().trim();
+                bookWriter = editTextWriter.getText().toString().trim();
+                bookGenre = spinnerGenre.getSelectedItem().toString();
                 // store the image and get image url
-
+                uplaodBook(Uri.fromFile(finalCompressedImageFile));
                 // create book object
 
             }
@@ -671,5 +683,66 @@ Profile.OnFragmentInteractionListener{
     private void takePhotoFromCamera() {
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, CAMERA);
+    }
+
+
+    private String uplaodBook(Uri filePath) {
+        final String uuidImage = UUID.randomUUID().toString();
+
+
+        if( filePath!= null)
+        {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+            StorageReference ref = mStorageRef.child("images/"+ uuidImage);
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                            Book bookUpload = new Book(uuidImage, bookTitle,bookWriter, bookGenre,true,0, name,uid );
+                            firebaseFirestore = FirebaseFirestore.getInstance();
+                            // upload book
+                            firebaseFirestore.collection("books").add(bookUpload)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                                    // change books uid
+                                    dialogCreate.dismiss();
+
+                                }
+                            })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error adding document", e);
+                                            Toast.makeText(MainActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+        }
+
+        return uuidImage;
+
     }
 }
