@@ -41,6 +41,7 @@ public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBo
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
+        holder.mImageBook.setImageBitmap(mValues.get(position).getBookImageUrl());
         holder.mTitle.setText(mValues.get(position).getBookTitle());
         holder.mAuthor.setText(mValues.get(position).getBookAuthor());
         holder.mBookRating.setRating(mValues.get(position).getBookRating());
@@ -52,6 +53,7 @@ public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBo
             holder.mAvailibility.setText("Not Available");
             holder.mAvailibility.setTextColor(Color.RED);
         }
+        holder.mBookOwner.setText(mValues.get(position).getBookOwner());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
