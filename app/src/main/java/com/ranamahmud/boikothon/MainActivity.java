@@ -641,7 +641,7 @@ Profile.OnFragmentInteractionListener{
     }
 
     @Override
-    public void onListFragmentInteraction(com.ranamahmud.boikothon.dummy.DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(Book item) {
 
     }
 

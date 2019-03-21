@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.dummy.DummyContent;
 import com.ranamahmud.boikothon.dummy.DummyContent.DummyItem;
+import com.ranamahmud.boikothon.model.Book;
 
 /**
  * A fragment representing a list of Items.
@@ -105,6 +106,6 @@ public class ManageBookFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Book item);
     }
 }

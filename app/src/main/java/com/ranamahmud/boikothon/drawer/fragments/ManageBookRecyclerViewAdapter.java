@@ -2,28 +2,31 @@ package com.ranamahmud.boikothon.drawer.fragments;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.drawer.fragments.ManageBookFragment.OnListFragmentInteractionListener;
-import com.ranamahmud.boikothon.dummy.DummyContent.DummyItem;
+import com.ranamahmud.boikothon.model.Book;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Book} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBookRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Book> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public ManageBookRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public ManageBookRecyclerViewAdapter(List<Book> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -38,8 +41,17 @@ public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBo
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mTitle.setText(mValues.get(position).getBookTitle());
+        holder.mAuthor.setText(mValues.get(position).getBookAuthor());
+        holder.mBookRating.setRating(mValues.get(position).getBookRating());
+        holder.mGenre.setText(mValues.get(position).getBookGenre());
+        if(mValues.get(position).isBookAvailable()){
+            holder.mAvailibility.setText("Available");
+            holder.mAvailibility.setTextColor(Color.GREEN);
+        } else{
+            holder.mAvailibility.setText("Not Available");
+            holder.mAvailibility.setTextColor(Color.RED);
+        }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,20 +72,30 @@ public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+        public final ImageView mImageBook;
+        public final TextView mTitle;
+        public final TextView mAuthor;
+        public final RatingBar mBookRating;
+        public final TextView mGenre;
+        public final TextView mAvailibility;
+        public final TextView mBookOwner;
+        public Book mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mImageBook = mView.findViewById(R.id.imageViewBook_basic);
+            mTitle = mView.findViewById(R.id.textViewTitle);
+            mAuthor = mView.findViewById(R.id.textViewAuthor);
+            mBookRating = mView.findViewById(R.id.ratingBarBook);
+            mGenre = mView.findViewById(R.id.textViewGenre);
+            mAvailibility = mView.findViewById(R.id.textViewAvailibility);
+            mBookOwner = mView.findViewById(R.id.textViewBookOwner);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mItem.getBookTitle()+" "+mItem.getBookAuthor() + "'";
         }
     }
 }

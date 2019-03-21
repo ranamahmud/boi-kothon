@@ -47,5 +47,6 @@ dependencies {
 
 // image compression library
     implementation 'id.zelory:compressor:2.1.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
 
 }

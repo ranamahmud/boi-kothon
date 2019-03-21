@@ -2,7 +2,7 @@ package com.ranamahmud.boikothon.model;
 
 public class Book {
     private String bookImageUrl;
-    private String bookWriter;
+    private String bookAuthor;
     private String bookTitle;
     private String bookOwner;
     private String bookGenre;
@@ -10,9 +10,9 @@ public class Book {
     private boolean bookAvailable;
     private int bookRating;
 
-    public Book(String bookImageUrl, String bookTitle,String bookWriter, String bookGenre,  boolean bookAvailable, int bookRating,  String bookOwner,String bookOwnerUid) {
+    public Book(String bookImageUrl, String bookTitle, String bookAuthor, String bookGenre, boolean bookAvailable, int bookRating, String bookOwner, String bookOwnerUid) {
         this.bookImageUrl = bookImageUrl;
-        this.bookWriter = bookWriter;
+        this.bookAuthor = bookAuthor;
         this.bookTitle = bookTitle;
         this.bookOwner = bookOwner;
         this.bookGenre = bookGenre;
@@ -29,12 +29,12 @@ public class Book {
         this.bookImageUrl = bookImageUrl;
     }
 
-    public String getBookWriter() {
-        return bookWriter;
+    public String getBookAuthor() {
+        return bookAuthor;
     }
 
-    public void setBookWriter(String bookWriter) {
-        this.bookWriter = bookWriter;
+    public void setBookAuthor(String bookAuthor) {
+        this.bookAuthor = bookAuthor;
     }
 
     public String getBookTitle() {

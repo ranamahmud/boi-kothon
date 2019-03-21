@@ -1,5 +1,7 @@
 package com.ranamahmud.boikothon.dummy;
 
+import com.ranamahmud.boikothon.model.Book;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +18,12 @@ public class DummyContent {
     /**
      * An array of sample (dummy) items.
      */
-    public static final List<DummyItem> ITEMS = new ArrayList<DummyItem>();
+    public static final List<Book> ITEMS = new ArrayList<Book>();
 
     /**
      * A map of sample (dummy) items, by ID.
      */
-    public static final Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
+    public static final Map<String, Book> ITEM_MAP = new HashMap<String, Book>();
 
     private static final int COUNT = 25;
 
@@ -32,13 +34,14 @@ public class DummyContent {
         }
     }
 
-    private static void addItem(DummyItem item) {
+    private static void addItem(Book item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.id, item);
+        ITEM_MAP.put(item.getBookAuthor(), item);
     }
 
-    private static DummyItem createDummyItem(int position) {
-        return new DummyItem(String.valueOf(position), "Item " + position, makeDetails(position));
+    private static Book createDummyItem(int position) {
+        return new Book("uuidImage", "bookTitle","bookWriter",
+                "bookGenre",true,0, "name","uid" );
     }
 
     private static String makeDetails(int position) {
