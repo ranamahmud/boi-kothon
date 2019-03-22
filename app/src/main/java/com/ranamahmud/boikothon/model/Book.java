@@ -9,7 +9,9 @@ public class Book {
     private String bookOwnerUid;
     private boolean bookAvailable;
     private int bookRating;
+    public Book(){
 
+    }
     public Book(String bookImageUrl, String bookTitle, String bookAuthor, String bookGenre, boolean bookAvailable, int bookRating, String bookOwner, String bookOwnerUid) {
         this.bookImageUrl = bookImageUrl;
         this.bookAuthor = bookAuthor;

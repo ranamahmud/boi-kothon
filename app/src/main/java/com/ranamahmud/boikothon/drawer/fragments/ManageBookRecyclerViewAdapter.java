@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.drawer.fragments.ManageBookFragment.OnListFragmentInteractionListener;
 import com.ranamahmud.boikothon.model.Book;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class ManageBookRecyclerViewAdapter extends RecyclerView.Adapter<ManageBo
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mImageBook.setImageBitmap(mValues.get(position).getBookImageUrl());
+        Picasso.get().load(mValues.get(position).getBookImageUrl()).into(holder.mImageBook);
         holder.mTitle.setText(mValues.get(position).getBookTitle());
         holder.mAuthor.setText(mValues.get(position).getBookAuthor());
         holder.mBookRating.setRating(mValues.get(position).getBookRating());

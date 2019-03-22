@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import com.firebase.ui.auth.AuthUI;
@@ -125,6 +126,7 @@ Profile.OnFragmentInteractionListener{
     private String bookGenre;
     private FirebaseFirestore firebaseFirestore;
     private String bookWriter;
+    private Uri downloadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -695,33 +697,43 @@ Profile.OnFragmentInteractionListener{
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
-            StorageReference ref = mStorageRef.child("images/"+ uuidImage);
+            final StorageReference ref = mStorageRef.child("images/"+ uuidImage);
+
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                            Book bookUpload = new Book(uuidImage, bookTitle,bookWriter, bookGenre,true,0, name,uid );
-                            firebaseFirestore = FirebaseFirestore.getInstance();
-                            // upload book
-                            firebaseFirestore.collection("books").add(bookUpload)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
-                                    // change books uid
-                                    dialogCreate.dismiss();
 
+                            ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    Book bookUpload = new Book(task.getResult().toString(), bookTitle,bookWriter, bookGenre,true,0, name,uid );
+                                    firebaseFirestore = FirebaseFirestore.getInstance();
+                                    // upload book
+                                    firebaseFirestore.collection("books").add(bookUpload)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                                                    // change books uid
+                                                    dialogCreate.dismiss();
+
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error adding document", e);
+                                                    Toast.makeText(MainActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
                                 }
-                            })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding document", e);
-                                            Toast.makeText(MainActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            });
+
+
+
 
                         }
                     })

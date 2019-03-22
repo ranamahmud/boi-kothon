@@ -1,21 +1,34 @@
 package com.ranamahmud.boikothon.drawer.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.dummy.DummyContent;
 import com.ranamahmud.boikothon.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a list of Items.
@@ -30,6 +43,7 @@ public class ManageBookFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private FirestoreRecyclerAdapter<Book, BookViewHolder> adapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -62,17 +76,52 @@ public class ManageBookFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_managebook_list, container, false);
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+        //1 get the referece of recyclerview
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewManageBook);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        // 2. reference to database
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        Query query = rootRef.collection("books");
+//                .orderBy("bookTitle", Query.Direction.ASCENDING);
+
+
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(query, Book.class)
+                .build();
+         adapter = new FirestoreRecyclerAdapter<Book, BookViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull BookViewHolder holder, int position, @NonNull Book book) {
+                holder.mItem = book;
+                Picasso.get().load(book.getBookImageUrl()).into(holder.mImageBook);
+                holder.mTitle.setText(book.getBookTitle());
+                holder.mAuthor.setText(book.getBookAuthor());
+                holder.mBookRating.setRating(book.getBookRating());
+                holder.mGenre.setText(book.getBookGenre());
+                if(book.isBookAvailable()){
+                    holder.mAvailibility.setText("Available");
+                    holder.mAvailibility.setTextColor(Color.GREEN);
+                } else{
+                    holder.mAvailibility.setText("Not Available");
+                    holder.mAvailibility.setTextColor(Color.RED);
+                }
+                holder.mBookOwner.setText(book.getBookOwner());
             }
-            recyclerView.setAdapter(new ManageBookRecyclerViewAdapter(DummyContent.ITEMS, mListener));
-        }
+            @Override
+            public BookViewHolder onCreateViewHolder(ViewGroup group, int i) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.message for each item
+                View view = LayoutInflater.from(group.getContext())
+                        .inflate(R.layout.book_item_basic, group, false);
+
+                return new BookViewHolder(view);
+            }
+        };
+
+        // Set the adapter
+
+
+            recyclerView.setAdapter(adapter);
+
         return view;
     }
 
@@ -92,6 +141,8 @@ public class ManageBookFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
+
     }
 
     /**
@@ -107,5 +158,50 @@ public class ManageBookFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Book item);
+    }
+
+    // view holder
+    public class BookViewHolder extends RecyclerView.ViewHolder {
+        public final View mView;
+        public final ImageView mImageBook;
+        public final TextView mTitle;
+        public final TextView mAuthor;
+        public final RatingBar mBookRating;
+        public final TextView mGenre;
+        public final TextView mAvailibility;
+        public final TextView mBookOwner;
+        public Book mItem;
+
+        public BookViewHolder(View view) {
+            super(view);
+            mView = view;
+            mImageBook = mView.findViewById(R.id.imageViewBook_basic);
+            mTitle = mView.findViewById(R.id.textViewTitle);
+            mAuthor = mView.findViewById(R.id.textViewAuthor);
+            mBookRating = mView.findViewById(R.id.ratingBarBook);
+            mGenre = mView.findViewById(R.id.textViewGenre);
+            mAvailibility = mView.findViewById(R.id.textViewAvailibility);
+            mBookOwner = mView.findViewById(R.id.textViewBookOwner);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + " '" + mItem.getBookTitle()+" "+mItem.getBookAuthor() + "'";
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (adapter != null) {
+            adapter.stopListening();
+        }
     }
 }
