@@ -10,14 +10,18 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp" />
 
-    <VerticalScrollView
-        android:layout_width="match_parent"
+    <ScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+
         >
 
         <RadioGroup
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
 
             <RadioButton
                 android:id="@+id/radioButtonAll"
@@ -47,10 +51,10 @@
                 android:layout_weight="1"
                 android:text="Location" />
         </RadioGroup>
-    </VerticalScrollView>
+    </ScrollView>
 
     <Spinner
-        android:id="@+id/spinnerGenres"
+        android:id="@+id/spinnerGenresSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
