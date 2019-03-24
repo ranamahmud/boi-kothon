@@ -3,14 +3,6 @@ package com.ranamahmud.boikothon.drawer.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.paging.PagedList;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,14 +17,17 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A fragment representing a list of Items.
@@ -125,7 +120,7 @@ public class SearchBookFragment extends Fragment {
                         // Create a new instance of the ViewHolder, in this case we are using a custom
                         // layout called R.layout.message for each item
                         View view = LayoutInflater.from(group.getContext())
-                                .inflate(R.layout.book_item_basic, group, false);
+                                .inflate(R.layout.fragment_searchbook, group, false);
 
                         return new BookViewHolder(view);
                     }
@@ -189,7 +184,7 @@ public class SearchBookFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Book item);
     }
 
     // view holder

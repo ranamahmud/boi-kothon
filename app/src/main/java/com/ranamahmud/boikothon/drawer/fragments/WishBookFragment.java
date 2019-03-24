@@ -15,7 +15,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
@@ -111,6 +110,7 @@ public class WishBookFragment extends Fragment {
             }
         };
 
+        recyclerView.setAdapter(adapter);
 
         return view;
     }
@@ -145,7 +145,7 @@ public class WishBookFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Book item);
     }
 
     // view holder

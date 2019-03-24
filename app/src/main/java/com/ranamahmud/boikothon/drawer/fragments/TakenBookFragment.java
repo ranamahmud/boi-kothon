@@ -22,8 +22,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
@@ -115,6 +113,7 @@ public class TakenBookFragment extends Fragment {
                 return new BookViewHolder(view);
             }
         };
+        recyclerView.setAdapter(adapter);
 
         return view;
     }
@@ -149,7 +148,7 @@ public class TakenBookFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Book item);
     }
 
     // view holder

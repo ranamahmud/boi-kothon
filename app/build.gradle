@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+
     }
     buildTypes {
         release {
@@ -48,7 +50,7 @@ dependencies {
 // image compression library
     implementation 'id.zelory:compressor:2.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.github.ivbaranov:materialfavoritebutton:0.1.5'
+    implementation 'com.github.jd-alexander:LikeButton:0.2.3'
 
     // pagination library
     implementation 'android.arch.paging:runtime:1.x.x'

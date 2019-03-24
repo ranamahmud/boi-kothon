@@ -46,7 +46,6 @@ import com.ranamahmud.boikothon.drawer.fragments.Profile;
 import com.ranamahmud.boikothon.drawer.fragments.SearchBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.TakenBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.WishBookFragment;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
@@ -637,10 +636,7 @@ Profile.OnFragmentInteractionListener{
 
     }
 
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-    }
 
     @Override
     public void onListFragmentInteraction(Book item) {
