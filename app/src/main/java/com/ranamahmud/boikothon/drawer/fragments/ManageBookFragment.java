@@ -25,8 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
-import com.ranamahmud.boikothon.dummy.DummyContent;
-import com.ranamahmud.boikothon.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 

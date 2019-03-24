@@ -52,6 +52,8 @@ dependencies {
 
     // pagination library
     implementation 'android.arch.paging:runtime:1.x.x'
+// multi dex support
+    implementation 'com.android.support:multidex:1.0.3'
 
 
 }

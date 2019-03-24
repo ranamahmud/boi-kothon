@@ -1,6 +1,7 @@
 package com.ranamahmud.boikothon.drawer.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,11 +22,13 @@ import android.widget.TextView;
 
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
 import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent.DummyItem;
 import com.ranamahmud.boikothon.model.Book;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +47,7 @@ public class SearchBookFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private FirestorePagingAdapter<Book, BookViewHolder> adapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -90,18 +94,20 @@ public class SearchBookFragment extends Fragment {
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGenre.setAdapter(adapterSpinner);
         // spinner end
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+
 
         // query
         // The "base query" is a query with no startAt/endAt/limit clauses that the adapter can use
 // to form smaller queries for each page.  It should only include where() and orderBy() clauses
-        Query baseQuery = mItemsCollection.orderBy("value", Query.Direction.ASCENDING);
+        Query baseQuery = rootRef.collection("books").orderBy("bookTitle", Query.Direction.ASCENDING);
 
 // This configuration comes from the Paging Support Library
 // https://developer.android.com/reference/android/arch/paging/PagedList.Config.html
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)
-                .setPageSize(20)
+                .setPageSize(5)
                 .build();
 
 // The options for the adapter combine the paging configuration with query information
@@ -111,35 +117,45 @@ public class SearchBookFragment extends Fragment {
                 .setQuery(baseQuery, config, Book.class)
                 .build();
 
-        FirestorePagingAdapter<Book, BookViewHolder> adapter =
+         adapter =
                 new FirestorePagingAdapter<Book, BookViewHolder>(options) {
                     @NonNull
                     @Override
-                    public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        // Create the BookViewHolder
-                        // ...
+                    public BookViewHolder onCreateViewHolder(@NonNull ViewGroup group, int viewType) {
+                        // Create a new instance of the ViewHolder, in this case we are using a custom
+                        // layout called R.layout.message for each item
+                        View view = LayoutInflater.from(group.getContext())
+                                .inflate(R.layout.book_item_basic, group, false);
+
+                        return new BookViewHolder(view);
                     }
 
                     @Override
                     protected void onBindViewHolder(@NonNull BookViewHolder holder,
                                                     int position,
-                                                    @NonNull Book model) {
-                        // Bind the Book to the view holder
-                        // ...
+                                                    @NonNull Book book) {
+                        holder.mItem = book;
+                        Picasso.get().load(book.getBookImageUrl()).into(holder.mImageBook);
+                        holder.mTitle.setText(book.getBookTitle());
+                        holder.mAuthor.setText(book.getBookAuthor());
+                        holder.mBookRating.setRating(book.getBookRating());
+                        holder.mGenre.setText(book.getBookGenre());
+                        if(book.isBookAvailable()){
+                            holder.mAvailibility.setText("Available");
+                            holder.mAvailibility.setTextColor(Color.GREEN);
+                        } else{
+                            holder.mAvailibility.setText("Not Available");
+                            holder.mAvailibility.setTextColor(Color.RED);
+                        }
+                        holder.mBookOwner.setText(book.getBookOwner());
                     }
                 };
+        //get the referece of recyclerview
+        RecyclerView recyclerView = view.findViewById(R.id.listSearch);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new SearchBookRecyclerViewAdapter(DummyContent.ITEMS, mListener));
-        }
+        recyclerView.setAdapter(adapter);
         return view;
     }
 
@@ -203,6 +219,21 @@ public class SearchBookFragment extends Fragment {
         @Override
         public String toString() {
             return super.toString() + " '" + mItem.getBookTitle()+" "+mItem.getBookAuthor() + "'";
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (adapter != null) {
+            adapter.stopListening();
         }
     }
 

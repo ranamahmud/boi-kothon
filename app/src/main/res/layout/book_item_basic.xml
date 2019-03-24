@@ -18,9 +18,11 @@
             <ImageView
                 android:id="@+id/imageViewBook_basic"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
+                android:layout_margin="12dp"
                 android:layout_weight="1"
                 android:padding="12dp"
+                android:scaleType="center"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <LinearLayout
