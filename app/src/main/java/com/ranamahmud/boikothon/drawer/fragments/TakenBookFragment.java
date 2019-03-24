@@ -108,7 +108,7 @@ public class TakenBookFragment extends Fragment {
                 // Create a new instance of the ViewHolder, in this case we are using a custom
                 // layout called R.layout.message for each item
                 View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.book_item_basic, group, false);
+                        .inflate(R.layout.fragment_takenbook_list, group, false);
 
                 return new BookViewHolder(view);
             }
