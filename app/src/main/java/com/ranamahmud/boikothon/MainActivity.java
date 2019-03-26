@@ -103,10 +103,8 @@ Profile.OnFragmentInteractionListener{
     private Object IMAGE_DIRECTORY = "boikothon";
     private String name;
     private AlertDialog dialogCreate;
-    private ArrayDeque mBookReference;
     private String uid;
     private ImageView mImageViewProfile;
-    private View imageView;
     private Uri photoUrl;
     private String email;
     private TextView mName;
@@ -125,7 +123,6 @@ Profile.OnFragmentInteractionListener{
     private String bookGenre;
     private FirebaseFirestore firebaseFirestore;
     private String bookWriter;
-    private Uri downloadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
