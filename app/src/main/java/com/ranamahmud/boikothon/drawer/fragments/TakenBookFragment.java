@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
@@ -102,13 +105,26 @@ public class TakenBookFragment extends Fragment {
                     holder.mAvailibility.setTextColor(Color.RED);
                 }
                 holder.mBookOwner.setText(book.getBookOwner());
+
+                holder.likeButton.setOnLikeListener(new OnLikeListener() {
+                    @Override
+                    public void liked(LikeButton likeButton) {
+                        Log.e("search","Liked");
+                    }
+
+                    @Override
+                    public void unLiked(LikeButton likeButton) {
+                        Log.e("search","unLiked");
+
+                    }
+                });
             }
             @Override
             public BookViewHolder onCreateViewHolder(ViewGroup group, int i) {
                 // Create a new instance of the ViewHolder, in this case we are using a custom
                 // layout called R.layout.message for each item
                 View view = LayoutInflater.from(group.getContext())
-                        .inflate(R.layout.fragment_takenbook_list, group, false);
+                        .inflate(R.layout.fragment_takenbook, group, false);
 
                 return new BookViewHolder(view);
             }
@@ -162,6 +178,7 @@ public class TakenBookFragment extends Fragment {
         public final TextView mAvailibility;
         public final TextView mBookOwner;
         public Book mItem;
+        public LikeButton likeButton;
 
         public BookViewHolder(View view) {
             super(view);
@@ -173,6 +190,7 @@ public class TakenBookFragment extends Fragment {
             mGenre = mView.findViewById(R.id.textViewGenre);
             mAvailibility = mView.findViewById(R.id.textViewAvailibility);
             mBookOwner = mView.findViewById(R.id.textViewBookOwner);
+            likeButton = mView.findViewById(R.id.like_button);
         }
     }
     @Override

@@ -3,6 +3,7 @@ package com.ranamahmud.boikothon.drawer.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
@@ -98,6 +101,18 @@ public class WishBookFragment extends Fragment {
                     holder.mAvailibility.setTextColor(Color.RED);
                 }
                 holder.mBookOwner.setText(book.getBookOwner());
+                holder.likeButton.setOnLikeListener(new OnLikeListener() {
+                    @Override
+                    public void liked(LikeButton likeButton) {
+                        Log.e("search","Liked");
+                    }
+
+                    @Override
+                    public void unLiked(LikeButton likeButton) {
+                        Log.e("search","unLiked");
+
+                    }
+                });
             }
             @Override
             public BookViewHolder onCreateViewHolder(ViewGroup group, int i) {
@@ -159,6 +174,7 @@ public class WishBookFragment extends Fragment {
         public final TextView mAvailibility;
         public final TextView mBookOwner;
         public Book mItem;
+        public LikeButton likeButton;
 
         public BookViewHolder(View view) {
             super(view);
@@ -170,6 +186,7 @@ public class WishBookFragment extends Fragment {
             mGenre = mView.findViewById(R.id.textViewGenre);
             mAvailibility = mView.findViewById(R.id.textViewAvailibility);
             mBookOwner = mView.findViewById(R.id.textViewBookOwner);
+            likeButton = mView.findViewById(R.id.like_button);
         }
     }
     @Override
