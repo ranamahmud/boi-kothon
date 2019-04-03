@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.drawer.fragments.ChatsFragment.OnListFragmentInteractionListener;
 import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent.DummyItem;
 
