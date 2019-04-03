@@ -8,8 +8,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -18,13 +31,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,47 +46,39 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.DexterError;
 import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.ranamahmud.boikothon.drawer.fragments.ChatsFragment;
 import com.ranamahmud.boikothon.drawer.fragments.GivenBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.ManageBookFragment;
+import com.ranamahmud.boikothon.drawer.fragments.ManageRequests;
 import com.ranamahmud.boikothon.drawer.fragments.Profile;
 import com.ranamahmud.boikothon.drawer.fragments.SearchBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.TakenBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.WishBookFragment;
+import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import id.zelory.compressor.Compressor;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import id.zelory.compressor.Compressor;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,GivenBookFragment.OnListFragmentInteractionListener,
@@ -88,7 +86,9 @@ ManageBookFragment.OnListFragmentInteractionListener,
 SearchBookFragment.OnListFragmentInteractionListener,
 TakenBookFragment.OnListFragmentInteractionListener,
 WishBookFragment.OnListFragmentInteractionListener,
-Profile.OnFragmentInteractionListener{
+Profile.OnFragmentInteractionListener,
+ManageRequests.OnFragmentInteractionListener,
+ChatsFragment.OnListFragmentInteractionListener{
 
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = "MainActivity";
@@ -255,6 +255,15 @@ Profile.OnFragmentInteractionListener{
                 fragmentClass = WishBookFragment.class;
                 fab.hide();
                 break;
+            case R.id.nav_book_requests:
+                fragmentClass = ManageRequests.class;
+                fab.hide();
+                break;
+            case R.id.nav_chats:
+                fragmentClass = ChatsFragment.class;
+                fab.hide();
+                break;
+
             case R.id.nav_profile:
                 fragmentClass = Profile.class;
                 fab.hide();
@@ -748,6 +757,11 @@ Profile.OnFragmentInteractionListener{
         }
 
         return uuidImage;
+
+    }
+
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
     }
 }
