@@ -63,6 +63,7 @@ public class SearchBookFragment extends Fragment {
     private SearchView searchView;
     private RadioGroup radioGroupsearch;
     private int searchTypeId;
+    private String searchGenre;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -129,6 +130,8 @@ public class SearchBookFragment extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 Log.e("search",query);
                 searchTypeId = radioGroupsearch.getCheckedRadioButtonId();
+                searchGenre = spinnerGenre.getSelectedItem().toString();
+                Log.e("search",searchGenre);
                 switch (searchTypeId){
                     case R.id.radioButtonAll:
                         Log.e("search","All");
