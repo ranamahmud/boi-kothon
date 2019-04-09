@@ -2,12 +2,9 @@ package com.ranamahmud.boikothon.drawer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,7 +19,6 @@ import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -32,25 +28,20 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
-import com.ranamahmud.boikothon.MainActivity;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -79,7 +70,7 @@ public class SearchBookFragment extends Fragment {
     private int searchTypeId;
     private String searchGenre;
     private ArrayList<Book> bookArrayList = new ArrayList<>();
-    private int RESULT_OK = 123;
+    private int RESULT_OK = -1;
     private String name;
     private String email;
     private Uri photoUrl;
@@ -498,7 +489,10 @@ public class SearchBookFragment extends Fragment {
         menuManageBook = menu.findItem(R.id.nav_book_manage);
         menuProfile = menu.findItem(R.id.nav_profile);
         menuChats = menu.findItem(R.id.nav_chats);
-
+        menuSignIn= menu.findItem(R.id.nav_sign_in);
+        menuSignOut = menu.findItem(R.id.nav_sign_out);
+        menuChats = menu.findItem(R.id.nav_chats);
+        menuManageRequests = menu.findItem(R.id.nav_book_requests);
             //Fetch values from you database child and set it to the specific view object.
             mName.setText(name);
             mEmail.setText(email);
