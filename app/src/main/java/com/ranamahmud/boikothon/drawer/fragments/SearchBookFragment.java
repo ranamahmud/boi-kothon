@@ -19,12 +19,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 import com.ranamahmud.boikothon.R;
@@ -54,7 +60,7 @@ public class SearchBookFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    private FirestorePagingAdapter<Book, BookViewHolder> adapter;
+    private FirestoreRecyclerAdapter<Book, BookViewHolder> adapter;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private boolean loggedInStatus;
@@ -64,6 +70,7 @@ public class SearchBookFragment extends Fragment {
     private RadioGroup radioGroupsearch;
     private int searchTypeId;
     private String searchGenre;
+    private ArrayList<Book> bookArrayList = new ArrayList<>();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -108,6 +115,7 @@ public class SearchBookFragment extends Fragment {
             loggedInStatus = true;
         }
         // select options spinner
+
         String[] fiction=getResources().getStringArray(R.array.fiction);
         String [] nonFiction = getResources().getStringArray(R.array.non_fiction);
         ArrayList<String> bookType = new ArrayList<String>();
@@ -162,24 +170,37 @@ public class SearchBookFragment extends Fragment {
         // The "base query" is a query with no startAt/endAt/limit clauses that the adapter can use
 // to form smaller queries for each page.  It should only include where() and orderBy() clauses
         Query baseQuery = rootRef.collection("books").orderBy("bookTitle", Query.Direction.ASCENDING);
+// Access a Cloud Firestore instance from your Activity
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-// This configuration comes from the Paging Support Library
-// https://developer.android.com/reference/android/arch/paging/PagedList.Config.html
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(5)
-                .build();
 
-// The options for the adapter combine the paging configuration with query information
-// and application-specific options for lifecycle, etc.
-        FirestorePagingOptions<Book> options = new FirestorePagingOptions.Builder<Book>()
-                .setLifecycleOwner(this)
-                .setQuery(baseQuery, config, Book.class)
+        db.collection("books")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.e(TAG, document.getId() + " => " + document.getData());
+                                Book book = document.toObject(Book.class);
+                                Log.e(TAG,"books "+book.getBookTitle());
+                                bookArrayList.add(book);
+
+                            }
+                        } else {
+                            Log.e(TAG, "Error getting documents: ", task.getException());
+                        }
+                        Log.e("book size","Size of "+ String.valueOf(bookArrayList.size()));
+
+                    }
+                });
+
+        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
+                .setQuery(baseQuery, Book.class)
                 .build();
 
          adapter =
-                new FirestorePagingAdapter<Book, BookViewHolder>(options) {
+                new FirestoreRecyclerAdapter<Book, BookViewHolder>(options) {
                     @NonNull
                     @Override
                     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup group, int viewType) {
