@@ -8,13 +8,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -60,8 +60,10 @@ public class SearchBookFragment extends Fragment {
     private boolean loggedInStatus;
     private int RC_SIGN_IN = 123;
     private static final String TAG = "SearchBookFragment";
-    private EditText searchViewText;
+    private SearchView searchView;
     private RadioGroup radioGroupsearch;
+    private int searchTypeId;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -93,7 +95,7 @@ public class SearchBookFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_searchbook_list, container, false);
         // if logged in show sign out
-        searchViewText = view.findViewById(R.id.searchView);
+        searchView = view.findViewById(R.id.searchView);
         radioGroupsearch = view.findViewById(R.id.searchType);
 
 
@@ -121,43 +123,38 @@ public class SearchBookFragment extends Fragment {
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
 
         radioGroupsearch = view.findViewById(R.id.searchType);
-
         //Grab de EditText from the SearchView
-
-        searchViewText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onEditorAction(TextView v, int keyAction, KeyEvent keyEvent) {
-                if (
-                    //Soft keyboard search
-                        keyAction == EditorInfo.IME_ACTION_SEARCH ||
-                                //Physical keyboard enter key
-                                (keyEvent != null && KeyEvent.KEYCODE_ENTER == keyEvent.getKeyCode()
-                                        && keyEvent.getAction() == KeyEvent.ACTION_DOWN)) {
-                    Log.e("search", String.valueOf(searchViewText.getText()));
-                    // get radio button text
-                    int searchTypeId = radioGroupsearch.getId();
-
-
-                    switch (searchTypeId){
-                        case R.id.radioButtonAll:
-                            Log.e("search","All");
-                            break;
-                        case R.id.radioButtonTitle:
-                            Log.e("searh","Titlte");
-                            break;
-                        case R.id.radioButtonAuthor:
-                            Log.e("search","Author");
-                            break;
-                        case R.id.radioButtonLocation:
-                            Log.e("search","Location");
-                            break;
-                    }
-
-                    return true;
+            public boolean onQueryTextSubmit(String query) {
+                Log.e("search",query);
+                searchTypeId = radioGroupsearch.getCheckedRadioButtonId();
+                switch (searchTypeId){
+                    case R.id.radioButtonAll:
+                        Log.e("search","All");
+                        break;
+                    case R.id.radioButtonTitle:
+                        Log.e("search","Titlte");
+                        break;
+                    case R.id.radioButtonAuthor:
+                        Log.e("search","Author");
+                        break;
+                    case R.id.radioButtonLocation:
+                        Log.e("search","Location");
+                        break;
                 }
                 return false;
             }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
         });
+
+
+
+
         // query
         // The "base query" is a query with no startAt/endAt/limit clauses that the adapter can use
 // to form smaller queries for each page.  It should only include where() and orderBy() clauses
