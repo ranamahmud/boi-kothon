@@ -2,11 +2,16 @@ package com.ranamahmud.boikothon.drawer.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,28 +22,35 @@ import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
+import com.ranamahmud.boikothon.MainActivity;
 import com.ranamahmud.boikothon.R;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -67,6 +79,26 @@ public class SearchBookFragment extends Fragment {
     private int searchTypeId;
     private String searchGenre;
     private ArrayList<Book> bookArrayList = new ArrayList<>();
+    private int RESULT_OK = 123;
+    private String name;
+    private String email;
+    private Uri photoUrl;
+    private TextView mName;
+    private String uid;
+    private TextView mEmail;
+    private ImageView mImageViewProfile;
+    private MenuItem menuSearchBook;
+    private MenuItem menuGivenBook;
+    private MenuItem menuTakenBook;
+    private MenuItem menuWishList;
+    private MenuItem menuManageBook;
+    private MenuItem menuProfile;
+    private MenuItem menuSignIn;
+    private MenuItem menuSignOut;
+    private MenuItem menuManageRequests;
+    private Menu menu;
+    private MenuItem menuChats;
+    private int RESULT_CANCELED = 0;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -244,7 +276,6 @@ public class SearchBookFragment extends Fragment {
                                 // if not loggged in request to log in
                                 if(loggedInStatus==false){
                                     //after successfully login open the contact or sign in button
-                                    createSignInIntent();
                                 } else{
                                 }
 
@@ -257,11 +288,12 @@ public class SearchBookFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
                                 // checked logged in status
-                                // if not loggged in request to log in
                                 if(loggedInStatus==false){
                                     //after successfully login open the contact or sign in button
                                     createSignInIntent();
-                                }else{
+                                } else{
+                                    // if not loggged in request to log in
+
 
                                     // get the book id
 
@@ -276,6 +308,7 @@ public class SearchBookFragment extends Fragment {
                                     // open dialog with time frame
 
                                     startActivityForResult(intent, SearchBookFragment.ACTION_START_CHAT);
+
                                 }
 
                                 // get user id
@@ -387,6 +420,9 @@ public class SearchBookFragment extends Fragment {
         if (adapter != null) {
         }
     }
+
+
+
     public void createSignInIntent() {
         // [START auth_fui_create_intent]
         // Choose authentication providers
@@ -407,7 +443,83 @@ public class SearchBookFragment extends Fragment {
                 RC_SIGN_IN);
         // [END auth_fui_create_intent]
     }
+    // [START auth_fui_result]
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        // code for image picker
+        if (resultCode == this.RESULT_CANCELED) {
+            return;
+        }
+
+
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                setUserProfile();
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
+    }
+
+    private void setUserProfile() {
+        //     user profile related functions
+
+            // Name, email address, and profile photo Url,uid
+            currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            name = currentUser.getDisplayName();
+            email = currentUser.getEmail();
+            photoUrl = currentUser.getPhotoUrl();
+            uid = currentUser.getUid();
+            // save info to shared preference
+            // Check if user's email is verified
+            boolean emailVerified = currentUser.isEmailVerified();
+
+
+
+            NavigationView navigationView = getView().getRootView().findViewById(R.id.nav_view);
+
+            mName   = navigationView.getHeaderView(0).findViewById(R.id.header_name);
+            mEmail   = navigationView.getHeaderView(0).findViewById(R.id.header_email);
+            mImageViewProfile = navigationView.getHeaderView(0).findViewById(R.id.imageViewProfilePic);
+            mImageViewProfile.setImageResource(R.drawable.ic_launcher_background);
+        menu = navigationView.getMenu();
+        menuSearchBook = menu.findItem(R.id.nav_book_search);
+        menuGivenBook = menu.findItem(R.id.nav_book_given);
+        menuTakenBook = menu.findItem(R.id.nav_book_taken);
+        menuWishList = menu.findItem(R.id.nav_book_wish);
+        menuManageBook = menu.findItem(R.id.nav_book_manage);
+        menuProfile = menu.findItem(R.id.nav_profile);
+        menuChats = menu.findItem(R.id.nav_chats);
+
+            //Fetch values from you database child and set it to the specific view object.
+            mName.setText(name);
+            mEmail.setText(email);
+            Picasso.get().load(photoUrl).into(mImageViewProfile);
+
+            menuSearchBook.setChecked(true);
+            // hide unnecessary menu items
+            menuGivenBook.setVisible(true);
+            menuTakenBook.setVisible(true);
+            menuWishList.setVisible(true);
+            menuManageBook.setVisible(true);
+            menuProfile.setVisible(true);
+            menuSignIn.setVisible(false);
+            menuSignOut.setVisible(true);
+            menuManageRequests.setVisible(true);
+            menuChats.setVisible(true);
+
+
+
+    }
+    // [END auth_fui_result]
 
 
 

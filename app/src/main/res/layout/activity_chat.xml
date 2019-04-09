@@ -6,48 +6,50 @@
     android:background="@color/colorIndivateTab">
 
 
-    <ImageButton
-        android:id="@+id/btnSend"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:background="#00000000"
-        android:padding="10dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_send" />
-
-    <View
-        android:id="@+id/line"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey_200"
-        android:layout_above="@id/btnSend"/>
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerChat"
+        android:id="@+id/messageRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/line">
+        android:layout_above="@+id/linearLayout"
+   />
 
-    </androidx.recyclerview.widget.RecyclerView>
-
-    <EditText
-        android:id="@+id/editWriteMessage"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_toStartOf="@id/btnSend"
-        android:background="@drawable/edittext_boder"
-        android:drawablePadding="20dp"
-        android:inputType="textLongMessage"
-        android:maxLines="1"
-        android:paddingLeft="7dp"
-        android:paddingRight="7dp"
-        android:textColorHint="#aeafaf"
-        android:textSize="15sp" />
+        android:id="@+id/linearLayout">
 
+        <ImageView
+            android:id="@+id/addMessageImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_add_black_24dp"/>
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/messageEditText"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SEND"
+            android:enabled="false"
+            android:id="@+id/sendButton"
+            android:layout_gravity="bottom"/>
+
+    </LinearLayout>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

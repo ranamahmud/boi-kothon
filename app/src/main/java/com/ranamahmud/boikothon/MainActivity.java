@@ -452,7 +452,7 @@ ChatsFragment.OnListFragmentInteractionListener{
     }
 
 //     user profile related functions
-    private void setUserProfile() {
+    public void setUserProfile() {
         getSupportActionBar().setTitle("Search Book");
 
         // Name, email address, and profile photo Url,uid
