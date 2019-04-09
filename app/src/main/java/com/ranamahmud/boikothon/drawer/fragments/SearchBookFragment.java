@@ -4,13 +4,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
@@ -19,10 +17,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,7 +37,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,7 +53,7 @@ public class SearchBookFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    private FirestoreRecyclerAdapter<Book, BookViewHolder> adapter;
+    private RecyclerView.Adapter<BookViewHolder> adapter;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private boolean loggedInStatus;
@@ -195,12 +188,14 @@ public class SearchBookFragment extends Fragment {
                     }
                 });
 
-        FirestoreRecyclerOptions<Book> options = new FirestoreRecyclerOptions.Builder<Book>()
-                .setQuery(baseQuery, Book.class)
-                .build();
+
 
          adapter =
-                new FirestoreRecyclerAdapter<Book, BookViewHolder>(options) {
+                new RecyclerView.Adapter<BookViewHolder>() {
+
+                    // List to store all the contact details
+                    private ArrayList<Book> bookList = bookArrayList;
+
                     @NonNull
                     @Override
                     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup group, int viewType) {
@@ -213,23 +208,22 @@ public class SearchBookFragment extends Fragment {
                     }
 
                     @Override
-                    protected void onBindViewHolder(@NonNull BookViewHolder holder,
-                                                    int position,
-                                                    @NonNull Book book) {
-                        holder.mItem = book;
-                        Picasso.get().load(book.getBookImageUrl()).into(holder.mImageBook);
-                        holder.mTitle.setText(book.getBookTitle());
-                        holder.mAuthor.setText(book.getBookAuthor());
-                        holder.mBookRating.setRating(book.getBookRating());
-                        holder.mGenre.setText(book.getBookGenre());
-                        if(book.isBookAvailable()){
+                    public void onBindViewHolder(@NonNull BookViewHolder holder,
+                                                    int position) {
+                        holder.mItem = bookList.get(position);
+                        Picasso.get().load(bookList.get(position).getBookImageUrl()).into(holder.mImageBook);
+                        holder.mTitle.setText(bookList.get(position).getBookTitle());
+                        holder.mAuthor.setText(bookList.get(position).getBookAuthor());
+                        holder.mBookRating.setRating(bookList.get(position).getBookRating());
+                        holder.mGenre.setText(bookList.get(position).getBookGenre());
+                        if(bookList.get(position).isBookAvailable()){
                             holder.mAvailibility.setText("Available");
                             holder.mAvailibility.setTextColor(Color.GREEN);
                         } else{
                             holder.mAvailibility.setText("Not Available");
                             holder.mAvailibility.setTextColor(Color.RED);
                         }
-                        holder.mBookOwner.setText(book.getBookOwner());
+                        holder.mBookOwner.setText(bookList.get(position).getBookOwner());
 
                         holder.likeButton.setOnLikeListener(new OnLikeListener() {
                             @Override
@@ -268,6 +262,11 @@ public class SearchBookFragment extends Fragment {
 
                             }
                         });
+                    }
+
+                    @Override
+                    public int getItemCount() {
+                        return bookList.size();
                     }
                 };
         //get the referece of recyclerview
@@ -351,7 +350,6 @@ public class SearchBookFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
     }
 
     @Override
@@ -359,7 +357,6 @@ public class SearchBookFragment extends Fragment {
         super.onStop();
 
         if (adapter != null) {
-            adapter.stopListening();
         }
     }
     public void createSignInIntent() {
