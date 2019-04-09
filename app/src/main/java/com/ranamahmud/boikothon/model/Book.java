@@ -9,6 +9,18 @@ public class Book {
     private String bookOwnerUid;
     private boolean bookAvailable;
     private int bookRating;
+
+    public String getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
+    }
+
+    private String bookId;
+
+
     public Book(){
 
     }

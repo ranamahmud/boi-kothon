@@ -1,6 +1,8 @@
 package com.ranamahmud.boikothon.drawer.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +52,7 @@ public class SearchBookFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
+    private static int ACTION_START_CHAT =1;
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
@@ -159,13 +162,9 @@ public class SearchBookFragment extends Fragment {
 
 
 
-        // query
-        // The "base query" is a query with no startAt/endAt/limit clauses that the adapter can use
 // to form smaller queries for each page.  It should only include where() and orderBy() clauses
-        Query baseQuery = rootRef.collection("books").orderBy("bookTitle", Query.Direction.ASCENDING);
 // Access a Cloud Firestore instance from your Activity
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
 
         db.collection("books")
                 .get()
@@ -209,7 +208,7 @@ public class SearchBookFragment extends Fragment {
 
                     @Override
                     public void onBindViewHolder(@NonNull BookViewHolder holder,
-                                                    int position) {
+                                                 final int position) {
                         holder.mItem = bookList.get(position);
                         Picasso.get().load(bookList.get(position).getBookImageUrl()).into(holder.mImageBook);
                         holder.mTitle.setText(bookList.get(position).getBookTitle());
@@ -246,7 +245,11 @@ public class SearchBookFragment extends Fragment {
                                 if(loggedInStatus==false){
                                     //after successfully login open the contact or sign in button
                                     createSignInIntent();
+                                } else{
                                 }
+
+
+
 
                             }
                         });
@@ -258,7 +261,32 @@ public class SearchBookFragment extends Fragment {
                                 if(loggedInStatus==false){
                                     //after successfully login open the contact or sign in button
                                     createSignInIntent();
+                                }else{
+
+                                    // get the book id
+
+                                    // get the user id
+                                    String uid = FirebaseAuth.getInstance().getUid();
+                                    String bookOwnerUID = bookList.get(position).getBookOwnerUid();
+                                    // send a request message
+                                    Intent intent = new Intent(getContext(), ChatActivity.class);
+                                    intent.putExtra("uid", uid);
+                                    intent.putExtra("bookOwnerId", bookOwnerUID);
+
+                                    // open dialog with time frame
+
+                                    startActivityForResult(intent, SearchBookFragment.ACTION_START_CHAT);
                                 }
+
+                                // get user id
+
+                                // get book id
+
+                                // get book owner id
+
+                                // open chat fragment with both user id to chat
+
+
 
                             }
                         });

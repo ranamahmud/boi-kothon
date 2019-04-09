@@ -34,6 +34,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -54,7 +55,6 @@ import com.ranamahmud.boikothon.drawer.fragments.Profile;
 import com.ranamahmud.boikothon.drawer.fragments.SearchBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.TakenBookFragment;
 import com.ranamahmud.boikothon.drawer.fragments.WishBookFragment;
-import com.ranamahmud.boikothon.drawer.fragments.dummy.DummyContent;
 import com.ranamahmud.boikothon.model.Book;
 import com.squareup.picasso.Picasso;
 
@@ -118,16 +118,23 @@ ChatsFragment.OnListFragmentInteractionListener{
     private MenuItem menuProfile;
     private MenuItem menuSignIn;
     private MenuItem menuSignOut;
+    private MenuItem menuManageRequests;
+
     private StorageReference mStorageRef;
     private String bookTitle;
     private String bookGenre;
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseFirestore db;
     private String bookWriter;
-
+    private MenuItem menuChats;
+    private CollectionReference userRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // get database reference
+        db = FirebaseFirestore.getInstance();
+        userRef = db.collection("users");
         // set the serach fragment
         fragment = new SearchBookFragment();
 
@@ -160,6 +167,8 @@ ChatsFragment.OnListFragmentInteractionListener{
 
         menuSignIn =   menu.findItem(R.id.nav_sign_in);
         menuSignOut =   menu.findItem(R.id.nav_sign_out);
+        menuManageRequests = menu.findItem(R.id.nav_book_requests);
+        menuChats = menu.findItem(R.id.nav_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -479,7 +488,8 @@ ChatsFragment.OnListFragmentInteractionListener{
         menuProfile.setVisible(true);
         menuSignIn.setVisible(false);
         menuSignOut.setVisible(true);
-
+        menuManageRequests.setVisible(true);
+        menuChats.setVisible(true);
 
         // get firebase storage reference
         mStorageRef = FirebaseStorage.getInstance().getReference();
@@ -487,7 +497,6 @@ ChatsFragment.OnListFragmentInteractionListener{
     private void removeUserProfile() {
         // set search to checked
         menuSearchBook.setChecked(true);
-        getSupportActionBar().setTitle("Search Book");
         // Check if user's email is verified
 
         // The user's ID, unique to the Firebase project.
@@ -505,7 +514,8 @@ ChatsFragment.OnListFragmentInteractionListener{
         menuProfile.setVisible(false);
         menuSignIn.setVisible(true);
         menuSignOut.setVisible(false);
-
+        menuManageRequests.setVisible(false);
+        menuChats.setVisible(false);
 //        change fragment to serach
 
 
@@ -713,13 +723,44 @@ ChatsFragment.OnListFragmentInteractionListener{
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     Book bookUpload = new Book(task.getResult().toString(), bookTitle,bookWriter, bookGenre,true,0, name,uid );
                                     firebaseFirestore = FirebaseFirestore.getInstance();
-                                    // upload book
+                                    // upload book to all books
                                     firebaseFirestore.collection("books").add(bookUpload)
                                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                 @Override
                                                 public void onSuccess(DocumentReference documentReference) {
                                                     Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
                                                     // change books uid
+                                                    String bookid = documentReference.getId();
+                                                    firebaseFirestore.collection("books").document(bookid)
+                                                            .update(
+                                                                    "bookId", bookid
+                                                            );
+//                                                    dialogCreate.dismiss();
+
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error adding document", e);
+                                                    Toast.makeText(MainActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+
+                                    // upload book to user's manage books
+
+
+                                    firebaseFirestore.collection("users"+uid+"books").add(bookUpload)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                                                    // change books uid
+                                                    String bookid = documentReference.getId();
+                                                    firebaseFirestore.collection("users"+uid+"books").document(bookid)
+                                                            .update(
+                                                                    "bookId", bookid
+                                                            );
                                                     dialogCreate.dismiss();
 
                                                 }
@@ -760,8 +801,5 @@ ChatsFragment.OnListFragmentInteractionListener{
 
     }
 
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
-    }
 }
