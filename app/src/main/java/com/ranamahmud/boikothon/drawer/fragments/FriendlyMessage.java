@@ -17,29 +17,30 @@ package com.ranamahmud.boikothon.drawer.fragments;
 
 public class FriendlyMessage {
 
-    private String id;
     private String text;
     private String name;
     private String photoUrl;
     private String imageUrl;
+    public String idSender;
 
-    public FriendlyMessage() {
-    }
-
-    public FriendlyMessage(String text, String name, String photoUrl, String imageUrl) {
+    public FriendlyMessage( String text, String name, String photoUrl, String imageUrl, String idSender, String idReceiver, long timestamp) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
         this.imageUrl = imageUrl;
+        this.idSender = idSender;
+        this.idReceiver = idReceiver;
+        this.timestamp = timestamp;
     }
 
-    public String getId() {
-        return id;
+    public String idReceiver;
+    public long timestamp;
+
+    public FriendlyMessage() {
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+
+
 
     public String getText() {
         return text;

@@ -1,5 +1,6 @@
 package com.ranamahmud.boikothon.drawer.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,15 +15,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,14 +32,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.ranamahmud.boikothon.MainActivity;
 import com.ranamahmud.boikothon.R;
 
 import java.util.Arrays;
@@ -56,7 +54,9 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private int RC_SIGN_IN = 123;
     private FirebaseFirestore firebaseFirestore;
-
+    private String idSender;
+    private String idReceiver;
+    private long timestamp;
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
@@ -106,8 +106,9 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     private FirebaseUser mFirebaseUser;
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>
-            mFirebaseAdapter;
+    private FirestoreRecyclerAdapter<FriendlyMessage, MessageViewHolder> mFirebaseAdapter;
+
+
     // Firebase instance variables
 
     @Override
@@ -131,6 +132,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
             mUsername = mFirebaseUser.getDisplayName();
             if (mFirebaseUser.getPhotoUrl() != null) {
                 mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+
             }
         }
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -144,24 +146,19 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         mLinearLayoutManager.setStackFromEnd(true);
 
 // New child entries
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        SnapshotParser<FriendlyMessage> parser = new SnapshotParser<FriendlyMessage>() {
-            @Override
-            public FriendlyMessage parseSnapshot(DataSnapshot dataSnapshot) {
-                FriendlyMessage friendlyMessage = dataSnapshot.getValue(FriendlyMessage.class);
-                if (friendlyMessage != null) {
-                    friendlyMessage.setId(dataSnapshot.getKey());
-                }
-                return friendlyMessage;
-            }
-        };
 
-        DatabaseReference messagesRef = mFirebaseDatabaseReference.child(MESSAGES_CHILD);
-        FirebaseRecyclerOptions<FriendlyMessage> options =
-                new FirebaseRecyclerOptions.Builder<FriendlyMessage>()
-                        .setQuery(messagesRef, parser)
-                        .build();
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(options) {
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+
+        Query query = rootRef.collection("messages")
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<FriendlyMessage> options = new FirestoreRecyclerOptions.Builder<FriendlyMessage>()
+                .setQuery(query, FriendlyMessage.class)
+                .build();
+
+
+        mFirebaseAdapter = new FirestoreRecyclerAdapter<FriendlyMessage, MessageViewHolder>(options) {
+
             @Override
             public MessageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
                 LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
@@ -172,6 +169,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
             protected void onBindViewHolder(final MessageViewHolder viewHolder,
                                             int position,
                                             FriendlyMessage friendlyMessage) {
+
                 if (friendlyMessage.getText() != null) {
                     viewHolder.messageTextView.setText(friendlyMessage.getText());
                     viewHolder.messageTextView.setVisibility(TextView.VISIBLE);
@@ -208,17 +206,20 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
                 viewHolder.messengerTextView.setText(friendlyMessage.getName());
                 if (friendlyMessage.getPhotoUrl() == null) {
-                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(
-                            ChatActivity.this,
+                    viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(getBaseContext(),
                             R.drawable.ic_account_circle_black_36dp));
                 } else {
-                    Glide.with(ChatActivity.this)
+                    Glide.with(getBaseContext())
                             .load(friendlyMessage.getPhotoUrl())
                             .into(viewHolder.messengerImageView);
                 }
 
+
+                // log a view action on it
             }
         };
+
+
 
         mFirebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -268,11 +269,18 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intentData = getIntent();
+
+                idReceiver = intentData.getStringExtra("idReceiver");
+                idSender = mFirebaseAuth.getCurrentUser().getUid();
                 FriendlyMessage friendlyMessage = new
                         FriendlyMessage(mMessageEditText.getText().toString(),
                         mUsername,
                         mPhotoUrl,
-                        null /* no image */);
+                        null /* no image */,idReceiver,idSender,
+
+
+                        System.currentTimeMillis());
                 firebaseFirestore.collection("messages").add(friendlyMessage)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
