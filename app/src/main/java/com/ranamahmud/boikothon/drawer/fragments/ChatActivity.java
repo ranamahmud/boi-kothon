@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -41,6 +42,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ranamahmud.boikothon.R;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -150,7 +152,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
 
         Query query = rootRef.collection("messages")
-                .orderBy("timestamp", Query.Direction.DESCENDING);
+                .orderBy("timestamp", Query.Direction.ASCENDING);
 
         FirestoreRecyclerOptions<FriendlyMessage> options = new FirestoreRecyclerOptions.Builder<FriendlyMessage>()
                 .setQuery(query, FriendlyMessage.class)
@@ -273,6 +275,9 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
 
                 idReceiver = intentData.getStringExtra("idReceiver");
                 idSender = mFirebaseAuth.getCurrentUser().getUid();
+                Date date= new Date();
+
+                long time = date.getTime();
                 FriendlyMessage friendlyMessage = new
                         FriendlyMessage(mMessageEditText.getText().toString(),
                         mUsername,
@@ -280,7 +285,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
                         null /* no image */,idReceiver,idSender,
 
 
-                        System.currentTimeMillis());
+                        time);
                 firebaseFirestore.collection("messages").add(friendlyMessage)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
