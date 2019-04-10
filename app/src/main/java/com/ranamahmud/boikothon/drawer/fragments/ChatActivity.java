@@ -1,6 +1,5 @@
 package com.ranamahmud.boikothon.drawer.fragments;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,12 +27,16 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ranamahmud.boikothon.MainActivity;
@@ -52,6 +55,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChatActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private int RC_SIGN_IN = 123;
+    private FirebaseFirestore firebaseFirestore;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -95,7 +99,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private ProgressBar mProgressBar;
     private EditText mMessageEditText;
     private ImageView mAddMessageImageView;
     // Firebase instance variables
@@ -111,6 +114,8 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         // Set default username is anonymous.
         mUsername = ANONYMOUS;
@@ -134,11 +139,9 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
                 .build();
 
         // Initialize ProgressBar and RecyclerView.
-        mProgressBar = findViewById(R.id.progressBar);
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
 // New child entries
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
@@ -169,7 +172,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
             protected void onBindViewHolder(final MessageViewHolder viewHolder,
                                             int position,
                                             FriendlyMessage friendlyMessage) {
-                mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 if (friendlyMessage.getText() != null) {
                     viewHolder.messageTextView.setText(friendlyMessage.getText());
                     viewHolder.messageTextView.setVisibility(TextView.VISIBLE);
@@ -235,6 +237,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
                 }
             }
         });
+        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
 
@@ -265,17 +268,40 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.O
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Send messages on click.
+                FriendlyMessage friendlyMessage = new
+                        FriendlyMessage(mMessageEditText.getText().toString(),
+                        mUsername,
+                        mPhotoUrl,
+                        null /* no image */);
+                firebaseFirestore.collection("messages").add(friendlyMessage)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(TAG, "DocumentSnapshot written with ID: " + documentReference.getId());
+                                // change books uid
+                                String bookid = documentReference.getId();
+                                firebaseFirestore.collection("books").document(bookid)
+                                        .update(
+                                                "bookId", bookid
+                                        );
+//                                                    dialogCreate.dismiss();
+
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                                Toast.makeText(getApplicationContext(), "Please try again", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+//                mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+//                        .push().setValue(friendlyMessage);
+                mMessageEditText.setText("");
             }
         });
 
-        mAddMessageImageView = findViewById(R.id.addMessageImageView);
-        mAddMessageImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Select image for image message on click.
-            }
-        });
+
     }
 
     @Override
